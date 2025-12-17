@@ -13,16 +13,15 @@ return new class extends Migration
     {
         Schema::create('personal_access_tokens', function (Blueprint $table) {
             $table->id();
-            $table->morphs('tokenable');
-            $table->text('name');
+            $table->uuidMorphs('tokenable'); // به جای morphs از uuidMorphs استفاده کنید
+            $table->string('name');
             $table->string('token', 64)->unique();
             $table->text('abilities')->nullable();
             $table->timestamp('last_used_at')->nullable();
-            $table->timestamp('expires_at')->nullable()->index();
+            $table->timestamp('expires_at')->nullable();
             $table->timestamps();
         });
     }
-
     /**
      * Reverse the migrations.
      */

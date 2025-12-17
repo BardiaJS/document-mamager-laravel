@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateUserRequest;
 use Carbon\Carbon;
-use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\LoginUserRequest;
+use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 
 class UserController extends Controller
 {
@@ -17,8 +20,35 @@ class UserController extends Controller
             return response('You are under age!' , 422);
         }else{
             $validated_data['password'] = Hash::make($validated_data['password']);
+            $validated_data['age'] = Carbon::parse($validated_data['date_of_birth'])->age;
             $user = User::create($validated_data);
             return new UserResource($user);
         }
+    }
+
+    public function login(LoginUserRequest $loginUserRequest){
+        $validated_data = $loginUserRequest->validated();
+        if(Auth::attempt($validated_data)){
+            $user = Auth::user();
+            return response()->json([
+                'access_token' => $user->createToken('token-name', ['server:update'])->plainTextToken,
+                'user' => new UserResource($user)
+            ]);
+        }else{
+            return response()->json([
+                'error' => 'Invalid Data!'
+            ] , 403);
+        }
+    }
+
+    public function update(UpdateUserRequest $updateUserRequest , User $user){
+        $validated_data = $updateUserRequest->validated();
+        $user->update($validated_data);
+        return new UserResource($user);
+
+    }
+
+    public function get_user(User $user){
+        return new UserResource($user);
     }
 }

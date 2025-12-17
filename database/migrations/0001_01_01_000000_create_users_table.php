@@ -17,10 +17,14 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('national_code');
             $table->string('password');
-            $table->date('date_of_birth');
+            $table->string('age');
             $table->text('address');
             $table->string('phone');
             $table->string('email')->unique();
+            $table->boolean('is_document_admin')->default(false);
+            $table->boolean('is_document_manager')->default(false);
+            $table->boolean('is_boss')->default(false);
+            $table->boolean('is_support')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });
