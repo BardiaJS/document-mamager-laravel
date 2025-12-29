@@ -17,4 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })->withBroadcasting( // <--- اضافه کردن این بلاک
+        '/broadcasting/auth',
+        ['middleware' => ['auth:sanctum']], // یا 'auth:api' بسته به پکیج شما
+    )
+    ->create();

@@ -26,4 +26,17 @@ class MessageSent implements ShouldBroadcast
             new PrivateChannel("chat.{$this->message->receiver_id}"),
         ];
     }
+
+    // App\Events\MessageSent
+
+    public function broadcastWith(): array
+    {
+        return [
+            'id' => $this->message->id,
+            'text' => $this->message->text,
+            'sender_id' => $this->message->sender_id,
+            'receiver_id' => $this->message->receiver_id,
+            'created_at' => $this->message->created_at->diffForHumans(), // زمان خوانا
+        ];
+    }
 }

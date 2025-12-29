@@ -17,7 +17,7 @@ class ConversationController extends Controller
             'text' => request()->input('text')
         ]);
  
-        broadcast(new MessageSent($message));
+        broadcast(new MessageSent($message))->toOthers();
  
         return $message;
     }
