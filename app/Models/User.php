@@ -38,7 +38,8 @@ class User extends Authenticatable
         'is_document_admin',
         'is_document_manager',
         'is_boss',
-        'is_support'
+        'is_support',
+        'is_banned'
     ];
 
     /**

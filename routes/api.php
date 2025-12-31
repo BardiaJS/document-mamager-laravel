@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SupportController;
 use App\Models\User;
 use App\Events\MessageSent;
 use App\Models\Conversation;
@@ -41,3 +42,6 @@ Route::get('/documents/{document}' , [BossController::class, 'get_document'])->m
 
 Route::get('/messages/{user}', [ConversationController::class, 'receive_message'])->middleware(['auth:sanctum']);
 Route::post('/messages/{user}', [ConversationController::class, 'send_message'])->middleware('auth:sanctum');
+
+Route::post('/ban/{user}' , [SupportController::class , 'ban_user'])->middleware(['auth:sanctum']);
+Route::post('/unban/{user}' , [SupportController::class , 'unban_user'])->middleware(['auth:sanctum']);

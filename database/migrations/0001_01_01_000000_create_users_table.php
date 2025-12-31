@@ -25,6 +25,7 @@ return new class extends Migration
             $table->boolean('is_document_manager')->default(false);
             $table->boolean('is_boss')->default(false);
             $table->boolean('is_support')->default(false);
+            $table->boolean('is_banned')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

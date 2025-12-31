@@ -11,15 +11,28 @@ use Illuminate\Support\Facades\Auth;
 class ConversationController extends Controller
 {
     public function send_message(User $user){
-        $message = Conversation::create([
-            'sender_id' => Auth::user()->id ,
-            'receiver_id' => $user->id,
-            'text' => request()->input('text')
-        ]);
+        if(Auth::user()->is_support == 1){
+            $message = Conversation::create([
+                'sender_id' => Auth::user()->id ,
+                'receiver_id' => $user->id,
+                'text' => request()->input('text')
+            ]);
+           broadcast(new MessageSent($message))->toOthers();
+            
+            return $message;
+        }else if(!(Auth::user()->is_admin) and ($user->is_admin == 1)){
+            $message = Conversation::create([
+                'sender_id' => Auth::user()->id ,
+                'receiver_id' => $user->id,
+                'text' => request()->input('text')
+            ]);
+            broadcast(new MessageSent($message))->toOthers();
  
-        broadcast(new MessageSent($message))->toOthers();
- 
-        return $message;
+           return $message;
+        }else{
+            abort(4032 , 'no access!');
+        }
+
     }
 
     public function receive_message(User $user){

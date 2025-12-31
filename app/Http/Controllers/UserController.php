@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use Illuminate\Auth\Access\HandlesAuthorization;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
@@ -11,9 +12,11 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests; // این را اضافه کنید
 
 class UserController extends Controller
 {
+    use HandlesAuthorization;
     public function register(CreateUserRequest $createUserRequest){
         $validated_data = $createUserRequest->validated();
         if(Carbon::parse($validated_data['date_of_birth'])->age < 18){
@@ -30,21 +33,38 @@ class UserController extends Controller
         $validated_data = $loginUserRequest->validated();
         if(Auth::attempt($validated_data)){
             $user = Auth::user();
-            return response()->json([
-                'access_token' => $user->createToken('token-name', ['server:update'])->plainTextToken,
-                'user' => new UserResource($user)
-            ]);
+            try{
+                $this->authorize('not_banned' , $user);
+                return response()->json([
+                    'access_token' => $user->createToken('token-name', ['server:update'])->plainTextToken,
+                    'user' => new UserResource($user)
+                ]);
+            }catch (\Illuminate\Auth\Access\AuthorizationException $e){
+                return response()->json([
+                    'error' => 'Your account has been banned!'
+                ], 403);
+            }
+
         }else{
             return response()->json([
                 'error' => 'Invalid Data!'
             ] , 403);
         }
+        
     }
 
     public function update(UpdateUserRequest $updateUserRequest , User $user){
-        $validated_data = $updateUserRequest->validated();
-        $user->update($validated_data);
-        return new UserResource($user);
+        try{
+            $this->authorize('not_banned' , $user);
+            $validated_data = $updateUserRequest->validated();
+            $user->update($validated_data);
+            return new UserResource($user);
+        }catch(\Illuminate\Auth\Access\AuthorizationException $e){
+            return response()->json([
+                'error' => 'Your account has been banned!'
+            ], 403);
+        }
+
 
     }
 
